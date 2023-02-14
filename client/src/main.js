@@ -3,6 +3,6 @@ import App from './App.vue';
 // import bootstrap from 'bootstrap'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../prisma/client';
+// import '../prisma/client';
 
 createApp(App).mount('#app');

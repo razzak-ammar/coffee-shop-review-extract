@@ -1,14 +1,14 @@
 import puppeteer from 'puppeteer';
-import fs  from 'fs';
+// import fs  from 'fs';
 
 let reviews = [];
-let coffee_shop_name = "Caffe Del Doge";
+// let coffee_shop_name = "Caffe Del Doge";
 
-async function getReviews() {
-    const browser = await puppeteer.launch({ headless: false });
+export async function getReviews(url, coffee_shop_name) {
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
 
-    let url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or30-Torrefazione_Cannaregio-Venice_Veneto.html";
+    // let url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or30-Torrefazione_Cannaregio-Venice_Veneto.html";
 
     // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or45-Torrefazione_Cannaregio-Venice_Veneto.html";
 
@@ -20,7 +20,8 @@ async function getReviews() {
 
     // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d1088064-Reviews-or15-Caffe_Del_Doge-Venice_Veneto.html";
 
-    url = process.argv[2];
+    // url = process.argv[2];
+    // url = url_link;
 
     try {
         await page.goto(url);
@@ -45,30 +46,32 @@ async function getReviews() {
     
         await console.log(reviews);
     
-        await writeFile(reviews);
+        // await writeFile(reviews);
+
+        return reviews;
     } catch (err) {
         console.log(err);
     }
 
 }
 
-async function writeFile(reviews) {
-    console.log(reviews);
+// async function writeFile(reviews) {
+//     console.log(reviews);
 
-    let existing_data = fs.readFileSync("reviews.json", {encoding: 'utf-8'});
-    if(existing_data.length > 1) {
-        let existing_json = JSON.parse(existing_data);
-        existing_json.push(reviews);
+//     let existing_data = fs.readFileSync("reviews.json", {encoding: 'utf-8'});
+//     if(existing_data.length > 1) {
+//         let existing_json = JSON.parse(existing_data);
+//         existing_json.push(reviews);
 
-        let new_json = JSON.stringify(existing_json);
+//         let new_json = JSON.stringify(existing_json);
 
-        await fs.writeFileSync("reviews.json", new_json, "utf-8");
-    } else {
-        let json_reviews = await JSON.stringify(reviews);
-        await fs.writeFileSync("reviews.json", json_reviews, "utf-8");
-    }
+//         await fs.writeFileSync("reviews.json", new_json, "utf-8");
+//     } else {
+//         let json_reviews = await JSON.stringify(reviews);
+//         await fs.writeFileSync("reviews.json", json_reviews, "utf-8");
+//     }
 
 
-}
+// }
 
 getReviews();
