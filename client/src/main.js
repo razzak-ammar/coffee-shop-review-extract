@@ -1,7 +1,8 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 // import bootstrap from 'bootstrap'
 
-import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../prisma/client';
 
-createApp(App).mount('#app')
+createApp(App).mount('#app');
