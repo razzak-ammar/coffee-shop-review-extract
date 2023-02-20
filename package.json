@@ -13,5 +13,8 @@
     "@prisma/client": "^4.10.1",
     "puppeteer": "^19.6.0"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "prisma": "^4.10.1"
+  }
 }

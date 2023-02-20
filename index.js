@@ -5,54 +5,62 @@ let reviews = [];
 // let coffee_shop_name = "Caffe Del Doge";
 
 export async function getReviews(url, coffee_shop_name) {
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["'--single-process',", '--disable-gpu'],
+    executablePath:
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  });
+  const page = await browser.newPage();
 
-    // let url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or30-Torrefazione_Cannaregio-Venice_Veneto.html";
+  console.log('HELLO THIS IS ME', url);
 
-    // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or45-Torrefazione_Cannaregio-Venice_Veneto.html";
+  // let url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or30-Torrefazione_Cannaregio-Venice_Veneto.html";
 
-    // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or60-Torrefazione_Cannaregio-Venice_Veneto.html";
+  // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or45-Torrefazione_Cannaregio-Venice_Veneto.html";
 
-    // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d1088064-Reviews-Caffe_Del_Doge-Venice_Veneto.html";
+  // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or60-Torrefazione_Cannaregio-Venice_Veneto.html";
 
-    // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d1088064-Reviews-Caffe_Del_Doge-Venice_Veneto.html";
+  // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d1088064-Reviews-Caffe_Del_Doge-Venice_Veneto.html";
 
-    // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d1088064-Reviews-or15-Caffe_Del_Doge-Venice_Veneto.html";
+  // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d1088064-Reviews-Caffe_Del_Doge-Venice_Veneto.html";
 
-    // url = process.argv[2];
-    // url = url_link;
+  // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d1088064-Reviews-or15-Caffe_Del_Doge-Venice_Veneto.html";
 
-    try {
-        await page.goto(url);
-    
-        await page.setViewport({ width: 1080, height: 1024 });
-    
-        let review_container = ".review-container .noQuotes";
-        let review_container_2 = ".review-container .partial_entry";
-    
-        const elems = await page.$$(review_container);
-        const container_reviews = await page.$$(review_container_2);
-    
-    
-        await elems.forEach(async (elem, index) => {
-            let title = await elem.evaluate(el => el.textContent);
-            let text = await container_reviews[index].evaluate(el => el.textContent);
-            await reviews.push({ coffee_shop_name: coffee_shop_name , title: title, text: text });
-        });
-    
-    
-        await browser.close();
-    
-        await console.log(reviews);
-    
-        // await writeFile(reviews);
+  // url = process.argv[2];
+  // url = url_link;
 
-        return reviews;
-    } catch (err) {
-        console.log(err);
-    }
+  try {
+    await page.goto(url, { waitUntil: 'load' });
+    console.log(page.url());
 
+    await page.setViewport({ width: 1080, height: 1024 });
+
+    let review_container = '.review-container .noQuotes';
+    let review_container_2 = '.review-container .partial_entry';
+
+    const elems = await page.$$(review_container);
+    const container_reviews = await page.$$(review_container_2);
+
+    await elems.forEach(async (elem, index) => {
+      let title = await elem.evaluate((el) => el.textContent);
+      let text = await container_reviews[index].evaluate(
+        (el) => el.textContent
+      );
+      await reviews.push({
+        coffee_shop_name: coffee_shop_name,
+        title: title,
+        text: text
+      });
+    });
+
+    await browser.close();
+    await console.log(reviews);
+
+    // return reviews;
+  } catch (err) {
+    console.log(err.message);
+  }
 }
 
 // async function writeFile(reviews) {
@@ -71,7 +79,4 @@ export async function getReviews(url, coffee_shop_name) {
 //         await fs.writeFileSync("reviews.json", json_reviews, "utf-8");
 //     }
 
-
 // }
-
-getReviews();
