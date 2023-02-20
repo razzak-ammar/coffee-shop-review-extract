@@ -5,9 +5,9 @@ const Header = () => {
   const router = useRouter();
 
   return (
-    <nav class='navbar navbar-expand-lg bg-primary navbar-dark text-white'>
-      <div class='container'>
-        <Link class='navbar-brand' href='/'>
+    <nav className='navbar navbar-expand-lg bg-primary navbar-dark text-white'>
+      <div className='container'>
+        <Link className='navbar-brand' href='/'>
           Sentiment Analysis Tool
         </Link>
         {router.pathname !== '/import' && (

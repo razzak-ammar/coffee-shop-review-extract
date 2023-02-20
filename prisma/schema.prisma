@@ -11,12 +11,25 @@ datasource db {
 }
 
 model Review {
-  id       Int     @id @default(autoincrement())
-  title   String  
-  review  String
+  id            Int          @id @default(autoincrement())
+  title         String
+  text          String
+  coffeehouse   CoffeeHouse? @relation(fields: [coffeeHouseId], references: [id])
+  coffeeHouseId Int
+  Keyword       Keyword[]
 }
 
 model Keyword {
-  id      Int     @id @default(autoincrement())
-  phrase  String
+  id       Int    @id @default(autoincrement())
+  phrase   String
+  review   Review @relation(fields: [reviewId], references: [id])
+  reviewId Int
+}
+
+model CoffeeHouse {
+  id     Int      @id @default(autoincrement())
+  name   String
+  url    String
+  Review Review[]
+  region String   @default("Unknown")
 }

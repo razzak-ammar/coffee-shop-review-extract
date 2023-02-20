@@ -2,21 +2,40 @@ import Header from '@/components/Header';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
+import prisma from '../prisma-client';
 
-export default function Import() {
+export default function Import(props) {
   const [coffeehouseName, setCoffeeHouseName] = useState('');
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewText, setReviewText] = useState('');
   const [url, setUrl] = useState('');
+  const [alert, setAlert] = useState('');
 
-  function submit_input() {
+  async function submit_input() {
     console.log(coffeehouseName, url);
-    fetch('/api/add', {
+    let response = await fetch('/api/add', {
       method: 'POST',
       body: JSON.stringify({
-        url: url,
-        coffee_shop_name: coffeehouseName
-      })
+        coffeehouse_id: coffeehouseName,
+        review_title: reviewTitle,
+        review_text: reviewText
+      }),
+      headers: {
+        'content-type': 'application/json'
+      }
     });
     console.log('SUBMITTED');
+    if (response.ok) {
+      setAlert('Successfully created review');
+      setCoffeeHouseName('');
+      setReviewText('');
+      setReviewTitle('');
+
+      setTimeout(() => {
+        setAlert('');
+      }, 2000);
+    }
+    console.log(response.ok);
   }
 
   return (
@@ -30,25 +49,42 @@ export default function Import() {
       <main>
         <Header />
         <div className='container'>
-          <h3 className='pt-3'>Input a URL</h3>
+          {alert.length > 1 && (
+            <div class='alert alert-primary my-3' role='alert'>
+              {alert}
+            </div>
+          )}
+          <h3 className='pt-3'>Add a Review</h3>
+          <select
+            className='form-select my-3'
+            aria-label='Default select example'
+            value={coffeehouseName}
+            onChange={(e) => setCoffeeHouseName(e.target.value)}
+          >
+            <option defaultValue={true}>Choose a Coffeehouse</option>
+            {props.coffeehouses.map((cf) => (
+              <option value={cf.id} key={cf.id}>
+                {cf.name}
+              </option>
+            ))}
+          </select>
+          {coffeehouseName}
           <div className='input-group'>
             <input
               type='text'
-              className='form-control my-3 py-2 my-1'
-              placeholder='Enter a url (https://example.com)'
-              aria-label='URL'
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              className='form-control py-2 my-1'
+              placeholder='Review Title'
+              value={reviewTitle}
+              onChange={(e) => setReviewTitle(e.target.value)}
             />
           </div>
           <div className='input-group mb-3'>
-            <input
+            <textarea
               type='text'
               className='form-control py-2 my-1'
-              placeholder='Coffeehouse Name'
-              aria-label='Coffeehouse Name'
-              value={coffeehouseName}
-              onChange={(e) => setCoffeeHouseName(e.target.value)}
+              placeholder='Review Text'
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
             />
           </div>
           <button className='btn btn-primary ms-1' onClick={submit_input}>
@@ -58,4 +94,19 @@ export default function Import() {
       </main>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  let coffeehouses = await prisma.coffeeHouse.findMany({
+    select: {
+      name: true,
+      id: true
+    }
+  });
+  console.log(coffeehouses);
+  return {
+    props: {
+      coffeehouses: coffeehouses
+    } // will be passed to the page component as props
+  };
 }

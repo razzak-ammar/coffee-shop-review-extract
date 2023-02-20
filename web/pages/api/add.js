@@ -1,4 +1,3 @@
-import { getReviews } from '../../../index';
 import prisma from '../../prisma-client';
 
 export default async function handler(req, res) {
@@ -11,17 +10,28 @@ export default async function handler(req, res) {
     }
 
     let parsed_request_body = req.body;
+    console.log('PARSED BODY');
     console.log(parsed_request_body);
 
-    let coffee_shop_name = parsed_request_body[0].coffee_shop_name;
-    let url = parsed_request_body[0].url;
+    // Coffeehouse name
+    // review title
+    // review text
 
-    console.log(coffee_shop_name, url);
+    let coffeehouse_id = parsed_request_body.coffeehouse_id;
+    let review_title = parsed_request_body.review_title;
+    let review_text = parsed_request_body.review_text;
 
-    let reviews = await getReviews(url, coffee_shop_name);
-    await console.log(reviews);
+    let new_review = await prisma.review.create({
+      data: {
+        coffeeHouseId: Number(coffeehouse_id),
+        title: review_title,
+        text: review_text
+      }
+    });
 
-    return res.status(200).json(reviews);
+    console.log(new_review);
+
+    return res.status(200).json(new_review);
   } catch (error) {
     console.log(error);
   }
