@@ -17,12 +17,13 @@ model Review {
   coffeehouse   CoffeeHouse? @relation(fields: [coffeeHouseId], references: [id])
   coffeeHouseId Int
   Keyword       Keyword[]
+  filtered      Boolean      @default(false)
 }
 
 model Keyword {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   phrase   String
-  review   Review @relation(fields: [reviewId], references: [id])
+  review   Review? @relation(fields: [reviewId], references: [id])
   reviewId Int
 }
 

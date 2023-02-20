@@ -10,6 +10,7 @@ export default function Import(props) {
   const [reviewText, setReviewText] = useState('');
   const [url, setUrl] = useState('');
   const [alert, setAlert] = useState('');
+  const [recentlyAdded, setRecentlyAdded] = useState([]);
 
   async function submit_input() {
     console.log(coffeehouseName, url);
@@ -34,6 +35,10 @@ export default function Import(props) {
       setTimeout(() => {
         setAlert('');
       }, 2000);
+
+      let new_review = await response.json();
+
+      setRecentlyAdded([...recentlyAdded, new_review]);
     }
     console.log(response.ok);
   }
@@ -48,48 +53,69 @@ export default function Import(props) {
       </Head>
       <main>
         <Header />
-        <div className='container'>
-          {alert.length > 1 && (
-            <div class='alert alert-primary my-3' role='alert'>
-              {alert}
+        <div className='container my-3'>
+          <div className='card'>
+            <div className='card-body'>
+              <div className='container'>
+                {alert.length > 1 && (
+                  <div class='alert alert-primary my-3' role='alert'>
+                    {alert}
+                  </div>
+                )}
+                <h3 className='pt-3'>Add a Review</h3>
+                <select
+                  className='form-select my-3'
+                  aria-label='Default select example'
+                  value={coffeehouseName}
+                  onChange={(e) => setCoffeeHouseName(e.target.value)}
+                >
+                  <option defaultValue={true}>Choose a Coffeehouse</option>
+                  {props.coffeehouses.map((cf) => (
+                    <option value={cf.id} key={cf.id}>
+                      {cf.name}
+                    </option>
+                  ))}
+                </select>
+                <div className='input-group'>
+                  <input
+                    type='text'
+                    className='form-control py-2 my-1'
+                    placeholder='Review Title'
+                    value={reviewTitle}
+                    onChange={(e) => setReviewTitle(e.target.value)}
+                  />
+                </div>
+                <div className='input-group mb-3'>
+                  <textarea
+                    type='text'
+                    className='form-control py-2 my-1'
+                    placeholder='Review Text'
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                  />
+                </div>
+                <button className='btn btn-primary ms-1' onClick={submit_input}>
+                  Load
+                </button>
+              </div>
             </div>
-          )}
-          <h3 className='pt-3'>Add a Review</h3>
-          <select
-            className='form-select my-3'
-            aria-label='Default select example'
-            value={coffeehouseName}
-            onChange={(e) => setCoffeeHouseName(e.target.value)}
-          >
-            <option defaultValue={true}>Choose a Coffeehouse</option>
-            {props.coffeehouses.map((cf) => (
-              <option value={cf.id} key={cf.id}>
-                {cf.name}
-              </option>
-            ))}
-          </select>
-          {coffeehouseName}
-          <div className='input-group'>
-            <input
-              type='text'
-              className='form-control py-2 my-1'
-              placeholder='Review Title'
-              value={reviewTitle}
-              onChange={(e) => setReviewTitle(e.target.value)}
-            />
           </div>
-          <div className='input-group mb-3'>
-            <textarea
-              type='text'
-              className='form-control py-2 my-1'
-              placeholder='Review Text'
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-            />
+          <div className='card my-3'>
+            <div className='card-body'>
+              <h3>Recently Added Reviews</h3>
+              <div className='list-group'>
+                {recentlyAdded.length >= 0 ? (
+                  recentlyAdded.map((review) => (
+                    <li className='list-group-item' aria-current='true'>
+                      <strong>{review.title}</strong>
+                    </li>
+                  ))
+                ) : (
+                  <p>No Reviews Added Recently</p>
+                )}
+              </div>
+            </div>
           </div>
-          <button className='btn btn-primary ms-1' onClick={submit_input}>
-            Load
-          </button>
         </div>
       </main>
     </>
