@@ -4,18 +4,27 @@ import puppeteer from 'puppeteer';
 let reviews = [];
 // let coffee_shop_name = "Caffe Del Doge";
 
-export async function getReviews(url, coffee_shop_name) {
+
+
+
+async function getReviews(url, coffee_shop_name) {
   const browser = await puppeteer.launch({
-    headless: true,
-    args: ["'--single-process',", '--disable-gpu'],
-    executablePath:
-      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+    headless: false,
   });
   const page = await browser.newPage();
 
+  // CHECK REVIEW METHOD
+  async function checkReview(element) {
+    if (element.innerHTML.includes("span")) {
+      console.log("THERE IS MORE TO THIS");
+    }
+
+    return element.textContent;
+  }
+
   console.log('HELLO THIS IS ME', url);
 
-  // let url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or30-Torrefazione_Cannaregio-Venice_Veneto.html";
+  url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or30-Torrefazione_Cannaregio-Venice_Veneto.html";
 
   // url = "https://www.tripadvisor.com/Restaurant_Review-g187870-d3157860-Reviews-or45-Torrefazione_Cannaregio-Venice_Veneto.html";
 
@@ -31,10 +40,10 @@ export async function getReviews(url, coffee_shop_name) {
   // url = url_link;
 
   try {
+    // Go to the page and setup
     await page.goto(url, { waitUntil: 'load' });
-    console.log(page.url());
-
     await page.setViewport({ width: 1080, height: 1024 });
+
 
     let review_container = '.review-container .noQuotes';
     let review_container_2 = '.review-container .partial_entry';
@@ -42,10 +51,45 @@ export async function getReviews(url, coffee_shop_name) {
     const elems = await page.$$(review_container);
     const container_reviews = await page.$$(review_container_2);
 
+    // console.log(await container_reviews[0].evaluate((async el => {
+    //   if (el.innerHTML.includes("span")) {
+    //     el.querySelector(".taLnk.ulBlueLinks").click();
+    //     // await new Promise(function (resolve) {
+    //     //   setTimeout(resolve, 1000)
+    //     // });
+    //     function delay(time) {
+    //       return new Promise(function (resolve) {
+    //         setTimeout(resolve, time)
+    //       });
+    //     }
+    //     await delay(1000);
+    //     return page.$(review_container_2).then(async el => el.innerHTML)
+    //   }
+    // })));
+
+    (await page.$$(".partial_entry .taLnk.ulBlueLinks")).forEach(async btn => {
+      // console.log(await btn.evaluate(el => el.click()))
+      // await btn.evaluate(el => el.click());
+      await btn.evaluate(el => el.click())
+      await new Promise(function(resolve) { 
+        setTimeout(resolve, 4000);
+      });
+    })
+
     await elems.forEach(async (elem, index) => {
+      
       let title = await elem.evaluate((el) => el.textContent);
       let text = await container_reviews[index].evaluate(
-        (el) => el.textContent
+        (el) => {
+          // console.log(el.textContent);
+          // if(el.innerHTML.includes("span")) {
+          //   console.log("something happening")
+          //   el.querySelector("span").click()
+          // } else {
+          //   console.log("NOTHING");
+          // }
+          return el.textContent;
+        }
       );
       await reviews.push({
         coffee_shop_name: coffee_shop_name,
@@ -62,6 +106,8 @@ export async function getReviews(url, coffee_shop_name) {
     console.log(err.message);
   }
 }
+
+
 
 // async function writeFile(reviews) {
 //     console.log(reviews);
@@ -80,3 +126,5 @@ export async function getReviews(url, coffee_shop_name) {
 //     }
 
 // }
+
+getReviews("", "Promise Coffee");
