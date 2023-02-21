@@ -81,6 +81,7 @@ export default (props) => {
             <form onSubmit={addKeyword}>
               <div className='input-group my-3'>
                 <input
+                  disabled={props.review.filtered}
                   type='text'
                   className='form-control'
                   placeholder='Keyword (ex. amazing coffee)'

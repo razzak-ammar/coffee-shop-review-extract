@@ -1,7 +1,7 @@
 import Header from '@/components/Header';
 import Head from 'next/head';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import prisma from '../prisma-client';
 
 export default function Import(props) {
@@ -11,8 +11,17 @@ export default function Import(props) {
   const [url, setUrl] = useState('');
   const [alert, setAlert] = useState('');
   const [recentlyAdded, setRecentlyAdded] = useState([]);
+  const reviewNameBox = useRef();
+  const [error, setError] = useState('');
 
   async function submit_input() {
+    if (!(reviewTitle.length > 1 && reviewText.length > 1)) {
+      setError('NOT ALL FIELDS FILL');
+      setTimeout(() => {
+        setError('');
+      }, 1000);
+      return error;
+    }
     console.log(coffeehouseName, url);
     let response = await fetch('/api/add', {
       method: 'POST',
@@ -28,7 +37,7 @@ export default function Import(props) {
     console.log('SUBMITTED');
     if (response.ok) {
       setAlert('Successfully created review');
-      setCoffeeHouseName('');
+      // setCoffeeHouseName('');
       setReviewText('');
       setReviewTitle('');
 
@@ -39,8 +48,21 @@ export default function Import(props) {
       let new_review = await response.json();
 
       setRecentlyAdded([...recentlyAdded, new_review]);
+
+      reviewNameBox.current.focus();
+    } else {
+      setError('ERROR');
+      setTimeout(() => {
+        setError('');
+      }, 1000);
     }
     console.log(response.ok);
+  }
+
+  function handle_keydown(event) {
+    if (event.metaKey && event.keyCode == 13) {
+      submit_input();
+    }
   }
 
   return (
@@ -60,6 +82,11 @@ export default function Import(props) {
                 {alert.length > 1 && (
                   <div class='alert alert-primary my-3' role='alert'>
                     {alert}
+                  </div>
+                )}
+                {error.length > 1 && (
+                  <div class='alert alert-danger my-3' role='alert'>
+                    {error}
                   </div>
                 )}
                 <h3 className='pt-3'>Add a Review</h3>
@@ -83,15 +110,17 @@ export default function Import(props) {
                     placeholder='Review Title'
                     value={reviewTitle}
                     onChange={(e) => setReviewTitle(e.target.value)}
+                    ref={reviewNameBox}
                   />
                 </div>
                 <div className='input-group mb-3'>
                   <textarea
                     type='text'
-                    className='form-control py-2 my-1'
+                    className='form-control py-2 my-1 review-text'
                     placeholder='Review Text'
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
+                    onKeyDown={handle_keydown}
                   />
                 </div>
                 <button className='btn btn-primary ms-1' onClick={submit_input}>
@@ -102,7 +131,10 @@ export default function Import(props) {
           </div>
           <div className='card my-3'>
             <div className='card-body'>
-              <h3>Recently Added Reviews</h3>
+              <h3>
+                Recently Added Reviews{' '}
+                <span className='badge bg-warning'>{recentlyAdded.length}</span>
+              </h3>
               <div className='list-group'>
                 {recentlyAdded.length >= 0 ? (
                   recentlyAdded.map((review) => (
