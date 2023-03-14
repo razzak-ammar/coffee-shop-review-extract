@@ -10,6 +10,10 @@ export default (props) => {
     <>
       <Header />
       <div className='container my-4'>
+        <div className='my-2'>
+          <span class='badge rounded-pill text-bg-danger'>{props.length}</span>{' '}
+          total keywords
+        </div>
         <div className='list-group'>
           {props.keywords.length >= 0 ? (
             props.keywords.map((keyword) => (
@@ -49,7 +53,8 @@ export async function getServerSideProps(context) {
   });
   return {
     props: {
-      keywords: keywords
+      keywords: keywords,
+      length: keywords.length
     }
   };
 }

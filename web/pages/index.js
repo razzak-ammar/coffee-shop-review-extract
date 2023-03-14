@@ -3,8 +3,13 @@ import Image from 'next/image';
 import prisma from '../prisma-client';
 import Header from '../components/Header';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export default function Home(props) {
+  const router = useRouter();
+
+  console.log(router.query.filter);
+
   return (
     <>
       <Head>
@@ -17,10 +22,46 @@ export default function Home(props) {
       <main>
         <div className='container my-3'>
           <h3>All Reviews</h3>
+          {router.query.filter === 'true' ? (
+            <div className='my-2'>
+              <span class='badge rounded-pill text-bg-danger'>
+                {props.length}
+              </span>{' '}
+              reviews remaining
+            </div>
+          ) : (
+            <div className='my-2'>
+              <span class='badge rounded-pill text-bg-primary'>
+                {props.length}
+              </span>{' '}
+              total reviews
+            </div>
+          )}
+          <btn
+            onClick={() => router.push('/?filter=false')}
+            className={`btn ${
+              router.query['filter'] === 'false' ||
+              router.query['filter'] === undefined
+                ? 'btn-primary'
+                : 'btn-outline-primary'
+            }`}
+          >
+            All Reviews
+          </btn>
+          <btn
+            onClick={() => router.push('/?filter=true')}
+            className={`btn mx-3 ${
+              router.query['filter'] === 'true'
+                ? 'btn-danger'
+                : 'btn-outline-danger'
+            }`}
+          >
+            Need to Analyze
+          </btn>
           <div className='row row-cols-3'>
             {props.reviews.map((review) => (
               <>
-                <div class='col'>
+                <div className='col'>
                   <div
                     className={`card m-2 ${
                       review.filtered ? 'text-bg-light' : null
@@ -58,16 +99,36 @@ export default function Home(props) {
 }
 
 export async function getServerSideProps(context) {
-  let reviews = await prisma.review.findMany({
-    include: {
-      coffeehouse: true,
-      Keyword: true
-    }
-  });
+  console.log('PARAMS - ' + context.query['filter']);
+
+  let reviews;
+
+  if (context.query.filter === 'true') {
+    reviews = await prisma.review.findMany({
+      where: {
+        Keyword: {
+          none: {}
+        },
+        filtered: false
+      },
+      include: {
+        coffeehouse: true,
+        Keyword: true
+      }
+    });
+  } else {
+    reviews = await prisma.review.findMany({
+      include: {
+        coffeehouse: true,
+        Keyword: true
+      }
+    });
+  }
 
   return {
     props: {
-      reviews: reviews
+      reviews: reviews,
+      length: reviews.length
     }
   };
 }

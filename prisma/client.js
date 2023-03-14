@@ -23,3 +23,16 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+
+reviews = await prisma.review.findMany({
+  where: {
+    Keyword: {
+      none: {}
+    },
+    filtered: false
+  },
+  include: {
+    coffeehouse: true,
+    Keyword: true
+  }
+});

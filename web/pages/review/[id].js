@@ -34,6 +34,21 @@ export default (props) => {
     }
   };
 
+  const filterReview = () => {
+    fetch(`/api/review/${id}`, {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        filter: !props.review.filtered
+      })
+    }).then((res) => {
+      console.log(res.json());
+      router.replace(router.asPath);
+    });
+  };
+
   if (props.review === null) {
     return (
       <>
@@ -50,29 +65,37 @@ export default (props) => {
       <Header />
       <div className='container'>
         {id != 1 && (
-          <Link
-            className='btn btn-danger m-3'
-            href={`/review/${Number(id) - 1}`}
-          >
+          <Link className='btn btn-danger m-3' href={`/review/${props.prevId}`}>
             Previous
           </Link>
         )}
-        <Link
-          className='btn btn-primary m-3'
-          href={`/review/${Number(id) + 1}`}
-        >
+        <Link className='btn btn-primary m-3' href={`/review/${props.nextId}`}>
           Next
         </Link>
         <div className='card m-4'>
           <div className='card-body'>
+            <div class='form-check'>
+              <input
+                class='form-check-input'
+                type='checkbox'
+                value=''
+                id='flexCheckChecked'
+                checked={props.review.filtered ? true : false}
+                onChange={() => filterReview()}
+              />
+              <label class='form-check-label' for='flexCheckChecked'>
+                Filter Review
+              </label>
+            </div>
             {props.review.filtered ? (
-              <div className='alert alert-danger' role='alert'>
+              <div className='alert alert-danger my-2' role='alert'>
                 Has been chosen to be filtered
               </div>
             ) : null}
-            <small className='card-subtitle'>
-              {props.review.coffeehouse.name}
-            </small>
+            <span class='badge rounded-pill text-bg-warning mt-4 mb-2'>
+              {props.review.coffeehouse.region}
+            </span>{' '}
+            <div className='card-subtitle'>{props.review.coffeehouse.name}</div>
             <h2 className='card-title'>{props.review.title}</h2>
             <p className='card-text'>{props.review.text}</p>
             {alert.length > 0 ? (
@@ -93,7 +116,6 @@ export default (props) => {
                 </button>
               </div>
             </form>
-
             {props.review.Keyword && props.review.Keyword.length > 0 ? (
               <ul className='list-group'>
                 <li className='list-group-item active'>Keywords</li>
@@ -114,6 +136,7 @@ export default (props) => {
 };
 
 export async function getServerSideProps(context) {
+  // * Gets the current review
   let review = await prisma.review.findFirst({
     where: { id: Number(context.params['id']) },
     include: {
@@ -122,9 +145,43 @@ export async function getServerSideProps(context) {
     }
   });
 
+  // * Get next record
+  let nextId = await prisma.review.findMany({
+    take: 1,
+    where: {
+      id: {
+        gt: Number(context.query.id)
+      }
+    },
+    orderBy: {
+      id: 'asc'
+    },
+    select: {
+      id: true
+    }
+  });
+
+  // * Get Previous Record
+  let prevId = await prisma.review.findMany({
+    take: 1,
+    where: {
+      id: {
+        lt: Number(context.query.id)
+      }
+    },
+    orderBy: {
+      id: 'desc'
+    },
+    select: {
+      id: true
+    }
+  });
+
   return {
     props: {
-      review: review
+      review: review,
+      prevId: prevId.length === 0 ? null : prevId[0].id,
+      nextId: nextId.length === 0 ? null : nextId[0].id
     }
   };
 }
