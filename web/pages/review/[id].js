@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import prisma from '@/prisma-client';
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
@@ -9,7 +9,11 @@ export default (props) => {
   const router = useRouter();
   const { id } = router.query;
   const [alert, setAlert] = useState('');
+  const inputRef = useRef();
 
+  if (inputRef.current) {
+    inputRef.current.focus();
+  }
   const addKeyword = async (e) => {
     e.preventDefault();
     let response = await fetch('/api/add_keyword', {
@@ -110,6 +114,12 @@ export default (props) => {
                   placeholder='Keyword (ex. amazing coffee)'
                   value={phrase}
                   onChange={(e) => setPhrase(e.target.value)}
+                  onKeyDown={(e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                      router.push(`/review/${props.nextId}`);
+                    }
+                  }}
+                  ref={inputRef}
                 />
                 <button class='btn btn-outline-success' type='submit'>
                   Add

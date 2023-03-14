@@ -37,7 +37,7 @@ export default function Home(props) {
               total reviews
             </div>
           )}
-          <btn
+          <button
             onClick={() => router.push('/?filter=false')}
             className={`btn ${
               router.query['filter'] === 'false' ||
@@ -47,8 +47,8 @@ export default function Home(props) {
             }`}
           >
             All Reviews
-          </btn>
-          <btn
+          </button>
+          <button
             onClick={() => router.push('/?filter=true')}
             className={`btn mx-3 ${
               router.query['filter'] === 'true'
@@ -57,7 +57,7 @@ export default function Home(props) {
             }`}
           >
             Need to Analyze
-          </btn>
+          </button>
           <div className='row row-cols-3'>
             {props.reviews.map((review) => (
               <>
