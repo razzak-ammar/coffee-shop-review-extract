@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 export default (props) => {
-  const [phrase, setPhrase] = useState();
+  const [phrase, setPhrase] = useState('');
   const router = useRouter();
   const { id } = router.query;
   const [alert, setAlert] = useState('');
@@ -16,6 +16,9 @@ export default (props) => {
   }
   const addKeyword = async (e) => {
     e.preventDefault();
+    if (phrase.length < 1) {
+      return;
+    }
     let response = await fetch('/api/add_keyword', {
       method: 'POST',
       headers: {
@@ -115,7 +118,7 @@ export default (props) => {
                   value={phrase}
                   onChange={(e) => setPhrase(e.target.value)}
                   onKeyDown={(e) => {
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                       router.push(`/review/${props.nextId}`);
                     }
                   }}
