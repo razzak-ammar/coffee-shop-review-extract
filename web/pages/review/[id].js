@@ -37,7 +37,7 @@ export default (props) => {
 
       setTimeout(() => {
         setAlert('');
-      }, 2000);
+      }, 200);
     }
   };
 
